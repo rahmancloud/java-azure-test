@@ -14,6 +14,7 @@ import com.azure.identity.AzureCliCredential;
 import com.azure.identity.AzureCliCredentialBuilder;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.identity.ManagedIdentityCredential;
+import com.azure.identity.ManagedIdentityCredentialBuilder;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.storage.models.PublicEndpoints;
 import com.azure.resourcemanager.storage.models.StorageAccount;
@@ -51,7 +52,7 @@ public class App {
 
             AzureResourceManager azureResourceManager = AzureResourceManager.configure()
                     .withLogLevel(HttpLogDetailLevel.BASIC)
-                    .authenticate(cliCredential, profile)
+                    .authenticate(managedIdentityCredential, profile)
                     .withDefaultSubscription();
 
             // Create a new storage account.
