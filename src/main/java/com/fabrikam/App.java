@@ -5,7 +5,6 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.azure.core.credential.TokenCredential;
-import com.azure.core.credential.AzureCliCredential;
 import com.azure.core.http.policy.HttpLogDetailLevel;
 import com.azure.core.management.AzureEnvironment;
 import com.azure.core.management.Region;
