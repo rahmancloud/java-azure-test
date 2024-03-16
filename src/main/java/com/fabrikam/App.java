@@ -13,6 +13,7 @@ import com.azure.identity.AzureAuthorityHosts;
 import com.azure.identity.AzureCliCredential;
 import com.azure.identity.AzureCliCredentialBuilder;
 import com.azure.identity.DefaultAzureCredentialBuilder;
+import com.azure.identity.ManagedIdentityCredential;
 import com.azure.resourcemanager.AzureResourceManager;
 import com.azure.resourcemanager.storage.models.PublicEndpoints;
 import com.azure.resourcemanager.storage.models.StorageAccount;
