@@ -36,8 +36,12 @@ public class App {
             //         .authorityHost(AzureAuthorityHosts.AZURE_PUBLIC_CLOUD)
             //         .build();
 
-            AzureCliCredential cliCredential = new AzureCliCredentialBuilder().build();
+            // AzureCliCredential cliCredential = new AzureCliCredentialBuilder().build();
             // Use the Azure CLI credential to authenticate.
+
+            ManagedIdentityCredential managedIdentityCredential = new ManagedIdentityCredentialBuilder()
+              // .clientId("<user-assigned managed identity client ID>") // required only for user-assigned
+              .build();
 
             // If you don't set the tenant ID and subscription ID via environment variables,
             // change to create the Azure profile with tenantId, subscriptionId, and Azure
