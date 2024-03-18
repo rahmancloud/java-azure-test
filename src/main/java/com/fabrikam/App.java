@@ -38,11 +38,11 @@ public class App {
     public static void main(String[] args) {
 
         try {
-            // TokenCredential tokenCredential = new DefaultAzureCredentialBuilder()
-            // .authorityHost(AzureAuthorityHosts.AZURE_PUBLIC_CLOUD)
-            // .build();
+            TokenCredential tokenCredential = new DefaultAzureCredentialBuilder()
+            .authorityHost(AzureAuthorityHosts.AZURE_PUBLIC_CLOUD)
+            .build();
 
-            AzureCliCredential cliCredential = new AzureCliCredentialBuilder().build();
+            // AzureCliCredential cliCredential = new AzureCliCredentialBuilder().build();
             // Use the Azure CLI credential to authenticate.
 
             // ManagedIdentityCredential managedIdentityCredential = new
@@ -58,7 +58,7 @@ public class App {
 
             AzureResourceManager azureResourceManager = AzureResourceManager.configure()
                     .withLogLevel(HttpLogDetailLevel.BASIC)
-                    .authenticate(cliCredential, profile)
+                    .authenticate(tokenCredential, profile)
                     .withDefaultSubscription();
 
             // Create a new storage account.
