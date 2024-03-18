@@ -2,7 +2,9 @@ package com.fabrikam;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Map;
 
 import com.azure.core.credential.TokenCredential;
 import com.azure.core.http.policy.HttpLogDetailLevel;
@@ -23,6 +25,8 @@ import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
+import com.azure.storage.blob.sas.BlobContainerSasPermission;
 import com.azure.storage.blob.models.PublicAccessType;
 import com.azure.storage.common.StorageSharedKeyCredential;
 
@@ -35,15 +39,17 @@ public class App {
 
         try {
             // TokenCredential tokenCredential = new DefaultAzureCredentialBuilder()
-            //         .authorityHost(AzureAuthorityHosts.AZURE_PUBLIC_CLOUD)
-            //         .build();
+            // .authorityHost(AzureAuthorityHosts.AZURE_PUBLIC_CLOUD)
+            // .build();
 
-            // AzureCliCredential cliCredential = new AzureCliCredentialBuilder().build();
+            AzureCliCredential cliCredential = new AzureCliCredentialBuilder().build();
             // Use the Azure CLI credential to authenticate.
 
-            ManagedIdentityCredential managedIdentityCredential = new ManagedIdentityCredentialBuilder()
-              // .clientId("<user-assigned managed identity client ID>") // required only for user-assigned
-              .build();
+            // ManagedIdentityCredential managedIdentityCredential = new
+            // ManagedIdentityCredentialBuilder()
+            // .clientId("<user-assigned managed identity client ID>") // required only for
+            // user-assigned
+            // .build();
 
             // If you don't set the tenant ID and subscription ID via environment variables,
             // change to create the Azure profile with tenantId, subscriptionId, and Azure
@@ -52,14 +58,16 @@ public class App {
 
             AzureResourceManager azureResourceManager = AzureResourceManager.configure()
                     .withLogLevel(HttpLogDetailLevel.BASIC)
-                    .authenticate(managedIdentityCredential, profile)
+                    .authenticate(cliCredential, profile)
                     .withDefaultSubscription();
 
             // Create a new storage account.
-            String storageAccountName = "abdulrahmanyusmadi123";
+            Map<String, String> env = System.getenv();
+            String storageAccountName = env.get("AZURE_STORAGE_ACCOUNT_NAME");
+            String storageResourceGroup = env.get("AZURE_STORAGE_RESOURCE_GROUP");
             StorageAccount storage = azureResourceManager.storageAccounts().define(storageAccountName)
                     .withRegion(Region.US_WEST2)
-                    .withNewResourceGroup("sampleStorageResourceGroup")
+                    .withNewResourceGroup(storageResourceGroup)
                     .create();
 
             // Create a storage container to hold the file.
@@ -84,12 +92,29 @@ public class App {
             blobContainerClient.setAccessPolicy(PublicAccessType.CONTAINER, null);
 
             // Write a blob to the container.
-            String fileName = "helloazure5.txt";
-            String textNew = "Hello Azure";
+            // String fileName = "helloazure6.txt";
+            // String textNew = "Hello Azure";
+            // BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
+            // InputStream is = new ByteArrayInputStream(textNew.getBytes());
+            // blobClient.upload(is, textNew.length());
 
-            BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
-            InputStream is = new ByteArrayInputStream(textNew.getBytes());
-            blobClient.upload(is, textNew.length());
+            // Generate a SAS token for the container.
+            BlobContainerSasPermission permissions = new BlobContainerSasPermission().setReadPermission(true)
+                    .setWritePermission(true);
+            OffsetDateTime expiryTime = OffsetDateTime.now().plusDays(1); // SAS token expires in 1 day
+            BlobServiceSasSignatureValues sasSignatureValues = new BlobServiceSasSignatureValues(expiryTime,
+                    permissions);
+            String sasToken = blobContainerClient.generateSas(sasSignatureValues);
+            System.out.println("SAS Token: " + sasToken);
+
+            // Create a new BlobServiceClient with the SAS token
+            BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
+                    .endpoint(endpoint)
+                    .sasToken(sasToken)
+                    .buildClient();
+
+            // List the blobs in the container
+            blobContainerClient.listBlobs().forEach(blobItem -> System.out.println(blobItem.getName()));
 
         } catch (Exception e) {
             System.out.println(e.getMessage());
